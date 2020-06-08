@@ -22,7 +22,7 @@ const BuildControls = (props) => {
             {controlsList}
             <button className={classes.OrderButton} 
             disabled={!props.purshasable}
-            onClick={props.summaryShow}>Order Now</button>
+            onClick={props.summaryShow}>{props.authentication ?  'Order Now' : "Sign in to Order"}</button>
         </div>
     );
 };

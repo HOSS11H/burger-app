@@ -1,9 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
 import axios from '../../../axios-orders';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import {  purchaseBurger } from '../../../store/actions/index';
 
 class ContactData extends React.Component {
     state = {
@@ -46,6 +49,7 @@ class ContactData extends React.Component {
                     required: true,
                     minLength: 5,
                     maxLength: 5,
+                    isNumeric: true,
                 },
                 valid: false,
             },
@@ -72,6 +76,7 @@ class ContactData extends React.Component {
                 touched: false,
                 validation: {
                     required: true,
+                    isEmail: true,
                 },
                 valid: false,
             },
@@ -88,9 +93,6 @@ class ContactData extends React.Component {
                 value: '',
             }
         },
-        ingredients: this.props.ingredients,
-        totalPrice: this.props.price,
-        loading: false,
         formIsValid: false,
     }
     checkValidity(value , rules) {
@@ -110,32 +112,32 @@ class ContactData extends React.Component {
             isValid  = value.length <= rules.maxLength && isValid;
         }
 
+        if (rules.isEmail) {
+            const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+            isValid = pattern.test(value) && isValid
+        }
+
+        if (rules.isNumeric) {
+            const pattern = /^\d+$/;
+            isValid = pattern.test(value) && isValid
+        }
+
         return isValid;
     }
 
     orderSubmitHandler = (event) => {
         event.preventDefault();
-        this.setState({loading: true});
-
         let orders = {};
         for (let element in this.state.orderForm) {
             orders[element] = this.state.orderForm[element].value;
         }
 
         let order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
+            ingredients: this.props.ingredients,
+            price: this.props.totalPrice,
             orderInfo: orders,
         }
-        axios.post('/orders.json' , order)
-            .then(response => {
-                this.setState({loading: false});
-                this.props.history.push('/');
-                
-            })
-            .catch(error => {
-                this.setState({loading: false});
-            }); 
+        this.props.onSubmitOrders( order , this.props.token );
     }
 
     eventChangedHandler = ( event, elementIdentifier ) => {
@@ -187,10 +189,9 @@ class ContactData extends React.Component {
                 <Button type='Success' disabled={!this.state.formIsValid} >Order</Button>
             </form>
         )
-        if (this.state.loading) {
+        if (this.props.loading) {
             form = <Spinner />
         }
-
         return (
             <div className={classes.ContactData}>
                 <h4>Enter Your Contact Data</h4>
@@ -199,5 +200,20 @@ class ContactData extends React.Component {
         )
     }
 }
+const mapStateToProps = state =>{
+    return {
+        ingredients: state.ing.ingredients,
+        totalPrice: state.ing.totalPrice,
+        loading: state.ord.ordersLoading,
+        purchased: state.ord.purchased,
+        token: state.auth.idToken
+    }
+}
+const mapDispatchToProps = dispatch =>{
+    return {
+        onSubmitOrders: ( order, token ) => dispatch( purchaseBurger( order , token ) )
+    }
+}
+
 // You Can Use The withRouter Component To Get the history-match props Instead of doing it manually.
-export default ContactData;
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, axios));

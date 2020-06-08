@@ -1,6 +1,6 @@
 import React from 'react';
-
-import Classes from './Order.module.css';
+import Button from '../UI/Button/Button';
+import classes from './Order.module.css';
 
 const Order = (props) => {
     let transformedIngredients = [];
@@ -9,7 +9,7 @@ const Order = (props) => {
         transformedIngredients.push({name: ingredient, amount: props.ingredients[ingredient]});
     }
 
-    let yourOrder = transformedIngredients.map((ig ,index) => {
+    let yourOrder = transformedIngredients.map( ( ig , index ) => {
         if (ig.amount === 0 ) {
             return false
         } else {
@@ -26,11 +26,13 @@ const Order = (props) => {
         }
     })
 
-    console.log(transformedIngredients)
     return (
-        <div className={Classes.Order}>
+        <div className={classes.Order} >
             <p>ingredients: {yourOrder} </p>
-            <p>Price:  <strong>USD {Number.parseFloat(props.price).toFixed(2)}</strong></p>
+            <div className={classes.Price}>
+                <p>Price:  <strong>USD {Number.parseFloat(props.price).toFixed(2)}</strong></p>
+                <Button type='Danger' clicked={props.clicked}>Delete</Button>
+            </div>
         </div>
     )
 }
