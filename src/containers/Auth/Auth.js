@@ -6,6 +6,7 @@ import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import { auth, authRedirect } from '../../store/actions/index';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import {  updateObject , checkValidity } from '../../shared/utility';
 
 
 class Auth extends React.Component {
@@ -42,44 +43,18 @@ class Auth extends React.Component {
         formIsValid: false,
         isSignUp: true,
     }
-    checkValidity(value , rules) {
-        let isValid = true ;
-        // If Input Has No validation
-        if(!rules) {
-            return true;
-        }
-
-        if ( rules.required ) {
-            isValid = value.trim() !== '' && isValid ;
-        }
-        if ( rules.minLength ) {
-            isValid  = value.length >= rules.minLength && isValid;
-        }
-        if ( rules.maxLength ) {
-            isValid  = value.length <= rules.maxLength && isValid;
-        }
-
-        if (rules.isEmail) {
-            const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-            isValid = pattern.test(value) && isValid
-        }
-
-        if (rules.isNumeric) {
-            const pattern = /^\d+$/;
-            isValid = pattern.test(value) && isValid
-        }
-        
-        return isValid;
-    }
+    
     eventChangedHandler = ( event , id ) => {
-        let updatedForm = { ...this.state.AuthForm };
-        let updatedElement = { ...updatedForm[id] };
-        let updatedValue = event.target.value;
+        let updatedElement = updateObject(this.state.AuthForm[id] , {
+            value : event.target.value,
+            touched : true,
+            valid : checkValidity( event.target.value, this.state.AuthForm[id].validation ) ,
+        }) ;
 
-        updatedElement.value = updatedValue;
-        updatedElement.touched = true;
-        updatedElement.valid = this.checkValidity( updatedValue, updatedElement.validation ) ;
-        updatedForm[id] = updatedElement;
+
+        let updatedForm =updateObject(this.state.AuthForm , {
+            [id] : updatedElement,
+        });
         // Overall Form Validation
         let formIsValid = true;
         for (let  inputIdentifier in updatedForm) {
