@@ -35,20 +35,12 @@ export class BurgerBuilder extends React.Component {
         if ( this.props.isAuth ) {
             this.setState({purshasing: true});
         }
-        this.props.history.push('/auth');
-        this.props.setAuthRedirect('/checkout');
-    }
-    purchaseRequest = () => {
-        
-        /* const queryParams = [] ;
-        // We Loop through Our Ingrdients
-        for(let i in this.props.ingredients) {
-            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.props.ingredients[i]))
+        if ( !this.props.isAuth ) {
+            this.props.setAuthRedirect('/checkout');
+            this.props.history.push('/auth');
         }
-        queryParams.push('price=' + this.props.totalPrice);
-        // We Convert Our Array To string with [&] betwwen each element ( ingredient ).
-        const queryString = queryParams.join('&');
-        // So We Pushed Our ingredients through Earvh Params */
+    }
+    purchaseRequest = ( ) => {
         this.props.history.push({
             pathname: '/checkout',
         });

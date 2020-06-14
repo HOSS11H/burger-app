@@ -39,7 +39,7 @@ class Checkout extends React.Component {
         const redirect = this.props.purchased ? <Redirect to='/' /> : null;
 
         // Redirecting instead of Showing a Spinner in THe Last Approach
-        let checkoutContent = <Redirect to='/' />
+        let checkoutContent = <Redirect to='/' /> ;
         if (this.props.ingredients) {
             checkoutContent = (
                 <React.Fragment>
